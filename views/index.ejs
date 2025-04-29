@@ -1,178 +1,181 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StatusZERO</title>
-  <link rel="icon" type="image/x-icon" href="https://tcf-ventures.b-cdn.net/branding/logos/status-zero-favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/style.css" rel="stylesheet">
-</head>
-
-<body id="pageBody" class="bg-light text-dark">
-
-<div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-  <a href="https://statuszero.org" class="flex-shrink-1">
-    <img src="https://tcf-ventures.b-cdn.net/branding/banners/StatusZERO.png" alt="StatusZERO" class="img-fluid">
-  </a>
-
-  <div class="toggle-wrapper ms-3 flex-shrink-0">
-    <input type="checkbox" id="darkModeToggle">
-    <label for="darkModeToggle" class="toggle-label">
-      <span class="toggle-ball"></span>
-    </label>
-  </div>
-</div>
-
-  <% 
-    let allTimestamps = Object.values(lastChecked);
-    let lastSystemCheck = allTimestamps.length ? new Date(Math.max(...allTimestamps.map(t => new Date(t)))).toLocaleString() : 'Never';
-  %>
-
-  <p><strong>Last System Check:</strong> <%= lastSystemCheck %></p>
-
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <input type="text" id="ipSearch" class="form-control" placeholder="Search IPs...">
-    </div>
-    <div class="col-md-8 text-end">
-      <button id="addIpBtn" class="btn btn-outline-success" onclick="openAddModal()">+ Add IP</button>
-      <button id="exportCSV" class="btn btn-outline-primary">Export CSV</button>
-    </div>
-  </div>
-
-  <!-- Global Stats -->
-  <div id="globalStats" class="mb-4"></div>
-
-  <!-- Blacklist Health -->
-  <div id="blacklistHealth" class="mb-4"></div>
-
-  <!-- IP Accordion -->
-  <div class="accordion" id="ipAccordion">
-    <% for (let ip in ipResults) { 
-         const safeIp = ip.replaceAll('.', '-'); 
-
-         let listedCount = 0;
-         let errorCount = 0;
-         let cleanCount = 0;
-
-         ipResults[ip].forEach(result => {
-           if (result.status === 'LISTED') listedCount++;
-           else if (result.status.startsWith('ERROR')) errorCount++;
-           else cleanCount++;
-         });
-
-         let overallStatus = 'CLEAN';
-		 if (listedCount > 0) {
-  			overallStatus = 'LISTED';
-		 } else if (errorCount > 0 && cleanCount === ipResults[ip].length - errorCount) {
-  		 // All non-errors are clean, treat as CLEAN
-  			overallStatus = 'CLEAN';
-		 } else if (errorCount > 0) {
-  		 // Otherwise if there are errors mixed with anything else, call it ERROR
-  			overallStatus = 'ERROR';
-		 }
-
-         let buttonClass = 'btn-success';
-         if (overallStatus === 'LISTED') buttonClass = 'btn-danger';
-         else if (overallStatus === 'ERROR') buttonClass = 'btn-warning';
-    %>
-      <div class="accordion-item" data-ip="<%= ip %>">
-        <h2 class="accordion-header" id="heading-<%= safeIp %>">
-          <button class="accordion-button collapsed <%= buttonClass %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= safeIp %>" aria-expanded="false" aria-controls="collapse-<%= safeIp %>">
-            <%= ip %> 
-            <span class="badge ms-2 <%= overallStatus === 'LISTED' ? 'bg-danger' : overallStatus === 'ERROR' ? 'bg-warning text-dark' : 'bg-success' %>">
-              <%= overallStatus %>
-            </span>
-          </button>
-        </h2>
-        <div id="collapse-<%= safeIp %>" class="accordion-collapse collapse" aria-labelledby="heading-<%= safeIp %>" data-bs-parent="#ipAccordion">
-          <div class="accordion-body">
-            <p>
-              <strong>Last Checked:</strong> 
-              <span class="last-checked" data-time="<%= lastChecked[ip] || '' %>">
-                <%= lastChecked[ip] ? new Date(lastChecked[ip]).toLocaleString() : 'Never' %>
-              </span>
-            </p>
-
-            <p>
-              <strong>Summary:</strong> 
-              Listed: <%= listedCount %> | Clean: <%= cleanCount %> | Errors: <%= errorCount %>
-            </p>
-
-            <h5>Blacklists</h5>
-            <ul class="list-group mb-3">
-              <% ipResults[ip].forEach(result => { %>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <strong><%= result.label %></strong>
-                  <% if (result.status.startsWith('ERROR')) { %>
-                    <span class="badge bg-warning text-dark"><%= result.status %></span>
-                  <% } else if (result.status === 'LISTED') { %>
-                    <span class="badge bg-danger"><%= result.status %></span>
-                  <% } else { %>
-                    <span class="badge bg-success"><%= result.status %></span>
-                  <% } %>
-                </li>
-              <% }); %>
-            </ul>
-
-            <div class="d-flex gap-2">
-              <a href="/manual-check?ip=<%= ip %>" class="btn btn-primary flex-grow-1">Manual Re-Check</a>
-              <button class="btn btn-danger flex-grow-1" onclick="openRemoveModal('<%= ip %>')">Remove IP</button>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <!-- Primary Meta Tags -->
+      <title>StatusZERO — DNSBL IP Blacklist Monitoring</title>
+      <meta name="title" content="StatusZERO — DNSBL IP Blacklist Monitoring">
+      <meta name="description" content="StatusZERO helps you monitor your IP addresses across 18 major DNS-based blacklists with instant rechecks, batch processing, and no API keys required. Stay in control of your network reputation.">
+      <!-- Open Graph / Facebook -->
+      <meta property="og:type" content="website">
+      <meta property="og:url" content="https://statuszero.org/">
+      <meta property="og:title" content="StatusZERO — DNSBL IP Blacklist Monitoring">
+      <meta property="og:description" content="StatusZERO helps you monitor your IP addresses across 18 major DNS-based blacklists with instant rechecks, batch processing, and no API keys required.">
+      <meta property="og:image" content="https://tcf-ventures.b-cdn.net/branding/banners/StatusZERO.png">
+      <!-- Twitter -->
+      <meta property="twitter:card" content="summary_large_image">
+      <meta property="twitter:url" content="https://statuszero.org/">
+      <meta property="twitter:title" content="StatusZERO — DNSBL IP Blacklist Monitoring">
+      <meta property="twitter:description" content="Monitor your IP addresses across 18 DNSBLs without the hassle. StatusZERO delivers easy rechecks, batch monitoring, and no API keys needed.">
+      <meta property="twitter:image" content="https://tcf-ventures.b-cdn.net/branding/banners/StatusZERO.png">
+      <!-- Optional SEO Enhancements -->
+      <meta name="keywords" content="DNSBL Monitoring, IP Blacklist Check, IP Reputation, Blacklist Monitoring, StatusZERO, DNS Blacklists, RBL Monitoring, IP Health">
+      <meta name="author" content="StatusZERO Project Team">
+      <meta name="robots" content="index, follow">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" type="image/x-icon" href="https://tcf-ventures.b-cdn.net/branding/logos/status-zero-favicon.ico">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="/style.css" rel="stylesheet">
+   </head>
+   <body id="pageBody" class="bg-light text-dark">
+      <div class="container py-5">
+         <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="https://statuszero.org" class="flex-shrink-1">
+            <img src="https://tcf-ventures.b-cdn.net/branding/banners/StatusZERO.png" alt="StatusZERO" class="img-fluid">
+            </a>
+            <div class="toggle-wrapper ms-3 flex-shrink-0">
+               <input type="checkbox" id="darkModeToggle">
+               <label for="darkModeToggle" class="toggle-label">
+               <span class="toggle-ball"></span>
+               </label>
             </div>
-
-          </div>
-        </div>
+         </div>
+         <% 
+            let allTimestamps = Object.values(lastChecked);
+            let lastSystemCheck = allTimestamps.length ? new Date(Math.max(...allTimestamps.map(t => new Date(t)))).toLocaleString() : 'Never';
+            %>
+         <p><strong>Last System Check:</strong> <%= lastSystemCheck %></p>
+         <div class="row mb-4">
+            <div class="col-md-4">
+               <input type="text" id="ipSearch" class="form-control" placeholder="Search IPs...">
+            </div>
+            <div class="col-md-8 text-end">
+               <button id="addIpBtn" class="btn btn-outline-success" onclick="openAddModal()">+ Add IP</button>
+               <button id="exportCSV" class="btn btn-outline-primary">Export CSV</button>
+            </div>
+         </div>
+         <!-- Global Stats -->
+         <div id="globalStats" class="mb-4"></div>
+         <!-- Blacklist Health -->
+         <div id="blacklistHealth" class="mb-4"></div>
+         <!-- IP Accordion -->
+         <div class="accordion" id="ipAccordion">
+            <% for (let ip in ipResults) { 
+               const safeIp = ip.replaceAll('.', '-'); 
+               
+               let listedCount = 0;
+               let errorCount = 0;
+               let cleanCount = 0;
+               
+               ipResults[ip].forEach(result => {
+                 if (result.status === 'LISTED') listedCount++;
+                 else if (result.status.startsWith('ERROR')) errorCount++;
+                 else cleanCount++;
+               });
+               
+               let overallStatus = 'CLEAN';
+               if (listedCount > 0) {
+               overallStatus = 'LISTED';
+               } else if (errorCount > 0 && cleanCount === ipResults[ip].length - errorCount) {
+               // All non-errors are clean, treat as CLEAN
+               overallStatus = 'CLEAN';
+               } else if (errorCount > 0) {
+               // Otherwise if there are errors mixed with anything else, call it ERROR
+               overallStatus = 'ERROR';
+               }
+               
+               let buttonClass = 'btn-success';
+               if (overallStatus === 'LISTED') buttonClass = 'btn-danger';
+               else if (overallStatus === 'ERROR') buttonClass = 'btn-warning';
+               %>
+            <div class="accordion-item" data-ip="<%= ip %>">
+               <h2 class="accordion-header" id="heading-<%= safeIp %>">
+                  <button class="accordion-button collapsed <%= buttonClass %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= safeIp %>" aria-expanded="false" aria-controls="collapse-<%= safeIp %>">
+                  <%= ip %> 
+                  <span class="badge ms-2 <%= overallStatus === 'LISTED' ? 'bg-danger' : overallStatus === 'ERROR' ? 'bg-warning text-dark' : 'bg-success' %>">
+                  <%= overallStatus %>
+                  </span>
+                  </button>
+               </h2>
+               <div id="collapse-<%= safeIp %>" class="accordion-collapse collapse" aria-labelledby="heading-<%= safeIp %>" data-bs-parent="#ipAccordion">
+                  <div class="accordion-body">
+                     <p>
+                        <strong>Last Checked:</strong> 
+                        <span class="last-checked" data-time="<%= lastChecked[ip] || '' %>">
+                        <%= lastChecked[ip] ? new Date(lastChecked[ip]).toLocaleString() : 'Never' %>
+                        </span>
+                     </p>
+                     <p>
+                        <strong>Summary:</strong> 
+                        Listed: <%= listedCount %> | Clean: <%= cleanCount %> | Errors: <%= errorCount %>
+                     </p>
+                     <h5>Blacklists</h5>
+                     <ul class="list-group mb-3">
+                        <% ipResults[ip].forEach(result => { %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                           <strong><%= result.label %></strong>
+                           <% if (result.status.startsWith('ERROR')) { %>
+                           <span class="badge bg-warning text-dark"><%= result.status %></span>
+                           <% } else if (result.status === 'LISTED') { %>
+                           <span class="badge bg-danger"><%= result.status %></span>
+                           <% } else { %>
+                           <span class="badge bg-success"><%= result.status %></span>
+                           <% } %>
+                        </li>
+                        <% }); %>
+                     </ul>
+                     <div class="d-flex gap-2">
+                        <a href="/manual-check?ip=<%= ip %>" class="btn btn-primary flex-grow-1">Manual Re-Check</a>
+                        <button class="btn btn-danger flex-grow-1" onclick="openRemoveModal('<%= ip %>')">Remove IP</button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <% } %>
+         </div>
       </div>
-    <% } %>
-  </div>
-
-</div>
-
-<!-- Add IP Modal -->
-<div class="modal fade" id="addIpModal" tabindex="-1" aria-labelledby="addIpModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addIpModalLabel">Add New IP</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <!-- Add IP Modal -->
+      <div class="modal fade" id="addIpModal" tabindex="-1" aria-labelledby="addIpModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="addIpModalLabel">Add New IP</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                  <input type="text" id="addIpInput" class="form-control mb-3" placeholder="Enter IP address">
+                  <input type="password" id="addIpToken" class="form-control" placeholder="Enter Admin Token">
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-success" onclick="submitAddIp()">Add IP</button>
+               </div>
+            </div>
+         </div>
       </div>
-      <div class="modal-body">
-        <input type="text" id="addIpInput" class="form-control mb-3" placeholder="Enter IP address">
-        <input type="password" id="addIpToken" class="form-control" placeholder="Enter Admin Token">
+      <!-- Remove IP Modal -->
+      <div class="modal fade" id="removeIpModal" tabindex="-1" aria-labelledby="removeIpModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="removeIpModalLabel">Remove IP</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                  <input type="text" id="removeIpInput" class="form-control mb-3" readonly>
+                  <input type="password" id="removeIpToken" class="form-control" placeholder="Enter Admin Token">
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" onclick="submitRemoveIp()">Remove IP</button>
+               </div>
+            </div>
+         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" onclick="submitAddIp()">Add IP</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Remove IP Modal -->
-<div class="modal fade" id="removeIpModal" tabindex="-1" aria-labelledby="removeIpModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="removeIpModalLabel">Remove IP</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="removeIpInput" class="form-control mb-3" readonly>
-        <input type="password" id="removeIpToken" class="form-control" placeholder="Enter Admin Token">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" onclick="submitRemoveIp()">Remove IP</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/script.js"></script>
-<!-- ========================================================================= -->
-<!-- Removal of this file or its contents constitutes a license violation      -->
-<script src="/c.js"></script>
-<!-- ========================================================================= -->
-</body>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="/script.js"></script>
+      <!-- ========================================================================= -->
+      <!-- Removal of this file or its contents constitutes a license violation      -->
+      <script src="/c.js"></script>
+      <!-- ========================================================================= -->
+   </body>
 </html>
