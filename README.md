@@ -73,10 +73,12 @@ Then open [http://localhost:PORT](http://localhost:PORT) in your browser!
 
 You can customize the environment using a `.env` file or system variables:
 
-| Variable              | Default    | Description                              |
-|----------------------|------------|------------------------------------------|
-| `PORT`               | `3000`     | Port to run the web UI                   |
-| `ADMIN_TOKEN`        | (required) | Token required to add/remove IPs         |
+| Variable             | Default   | Description                                      |
+|----------------------|------------|-------------------------------------------------|
+| `PORT`               | `3000`     | Port to run the web UI                          |
+| `ADMIN_TOKEN`        | `Random`   | Token required to add/remove IPs (randomly generated during setup) |
+| `BATCH_LIMIT`        | `256`      | Max number of IPs to process per batch          |
+| `CRON_HOUR`          | `3`        | Hour (24 hour format) to run the daily checks   |
 
 ---
 
