@@ -61,8 +61,8 @@ StatusZero bridges that gap — a sleek, no-nonsense dashboard that gives you co
 ```bash
 git clone https://github.com/TCFVentures/status-zero.git
 cd status-zero
-node setup.js [PORT]    # Optional: specify a port, defaults to 3000
-node index.js           # Start the application
+npm run setup [PORT]    # Optional: specify a port, defaults to 3000
+npm run start          # Start the application
 ```
 
 Then open [http://localhost:PORT](http://localhost:PORT) in your browser!
