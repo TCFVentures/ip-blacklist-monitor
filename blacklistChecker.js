@@ -77,7 +77,7 @@ async function checkSingleIP(ip) {
 const batchSizeSet = process.env.BATCH_SIZE || 256
 let sleepTimeDynamicBase = 60 * 1000
 
-const sleepTimeDynamic = Math.floor(batchSizeSet / 256) * sleepTimeDynamicBase
+const sleepTimeDynamic = Math.ceil(batchSizeSet / 256) * sleepTimeDynamicBase
 
 async function checkIPsInBatches(batchSize = batchSizeSet) {
   const ipList = loadIPs();
