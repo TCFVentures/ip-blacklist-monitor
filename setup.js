@@ -32,6 +32,8 @@ console.log(chalk.blue('[INFO] Generated secure admin token.'));
 const envPath = path.join(__dirname, '.env');
 const envContent = `PORT=${port}
 ADMIN_TOKEN=${adminToken}
+BATCH_LIMIT=256
+CRON_HOUR=3
 `;
 
 try {
@@ -61,7 +63,8 @@ const demoIPs = [
   "1.1.1.1",
   "208.67.222.222",
   "4.2.2.1",
-  "9.9.9.9"
+  "9.9.9.9",
+  "127.0.0.2"
 ];
 try {
   fs.writeFileSync(ipsPath, JSON.stringify(demoIPs, null, 2));
