@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const dns = require('dns').promises;
 const fs = require('fs');
 const path = require('path');
@@ -72,7 +74,12 @@ async function checkSingleIP(ip) {
 
 // Main batch processor
 // Batch size can be modified, but do not exceed 1024 - adjust sleep time accordingly
-async function checkIPsInBatches(batchSize = 256) {
+const batchSizeSet = process.env.BATCH_SIZE || 256
+let sleepTimeDynamicBase = 60 * 1000
+
+const sleepTimeDynamic = Math.floor(batchSizeSet / 256) * sleepTimeDynamicBase
+
+async function checkIPsInBatches(batchSize = batchSizeSet) {
   const ipList = loadIPs();
   const allResults = {};
 
@@ -85,8 +92,8 @@ async function checkIPsInBatches(batchSize = 256) {
     }
 
     if (i + batchSize < ipList.length) {
-      console.log('Waiting 60 seconds before next batch...');
-      await sleep(60 * 1000);
+      console.log(`Waiting ${sleepTimeDynamic / 1000 / 60} minute(s) before next batch...`);
+      await sleep(sleepTimeDynamic);
     }
   }
 
