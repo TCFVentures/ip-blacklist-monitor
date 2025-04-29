@@ -68,8 +68,9 @@ async function runAllChecks() {
   console.log(chalk.green(`[${new Date().toISOString()}] [SUCCESS] Blacklist checks completed.`));
 }
 
-// CRON Job: daily at 3AM
-cron.schedule('0 3 * * *', async () => {
+// CRON Job: daily at 3AM (default) or daily at hour specified
+const h = process.env.CRON_HOUR || '3'
+cron.schedule(`0 ${h} * * *`, async () => {
   console.log(chalk.magenta(`[SCHEDULED] Running daily blacklist checks...`));
   await runAllChecks();
 });
