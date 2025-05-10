@@ -114,7 +114,15 @@ While you may adjust batching parameters inside the code, doing so is **at your 
 
 # ✨ Feature Requests
 
-We are open to new ideas! Feel free to [open an issue](https://github.com/TCFVentures/status-zero/issues) if you have feature suggestions or enhancements you'd like to see in future versions of StatusZero.
+We are open to new ideas! Feel free to [submit a feature request](https://github.com/TCFVentures/status-zero/issues/new/choose) if you have feature suggestions or enhancements you'd like to see in future versions of StatusZero.
+
+---
+
+## 🆘 Help
+
+If you encounter issues or want to modify default settings, we recommend reviewing the [StatusZERO Wiki](https://github.com/TCFVentures/status-zero/wiki) for detailed guidance.
+
+If the Wiki does not answer your question, feel free to [open a GitHub issue](https://github.com/TCFVentures/status-zero/issues/new/choose) — we're happy to help!
 
 ---
 
