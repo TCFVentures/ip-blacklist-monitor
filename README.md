@@ -138,9 +138,9 @@ Logo assets and branding may only be used as shipped in the source code.
 
 # 📄 License
 
-This project is licensed under  
-**Creative Commons Attribution 4.0 International (CC-BY-4.0)**.  
-You are free to use, modify, and share it — just give appropriate credit.
+This project is licensed under the
+**GNU General Public License v3.0 (GPLv3)**.  
+You are free to use, modify, and share it — just give appropriate credit and share your modifications.
 
 [View Full License](https://github.com/TCFVentures/status-zero/blob/main/LICENSE)
 
